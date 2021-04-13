@@ -48,7 +48,8 @@ function milliToDays(ms) {
 function howManyDays(date) {
     if (date instanceof Date === false) throw new Error(`Type Error: Date expected, but got a "${typeof date}" type`);
     if (date.valueOf() < 0 ) throw new Error("Invalid Input: dates prior to 01/01/1970 are not accepted");
-    let nextMonth = new Date(date.getFullYear(), date.getMonth() + 1);
+    let month = date.getMonth();
+    let nextMonth = new Date(date.getFullYear(), month + 1);
     try {
         let numofdays = Math.ceil(milliToDays(nextMonth - date));
         return numofdays;
@@ -65,18 +66,108 @@ function howManyDays(date) {
  */
 function getDaysOfMonth(date) {
     let daysinmonth = howManyDays(date);
-    console.log(daysinmonth);
     let monthcalendar = {};
     for (let i = 0; i < daysinmonth; i++) {
-        monthcalendar[date.getDate()] = {dayofweek: date.getDay(), fulldate: date.toLocaleDateString()}
+        monthcalendar[date.getDate()] = {dayofweek: (date.getDay() === 0 ? 6 : date.getDay() -1 ), fulldate: new Intl.DateTimeFormat('en-US', {weekday: 'long'}).format(date)}
         date.setDate(date.getDate()+1);
     }
+    console.log(monthcalendar);
     return monthcalendar;
+}
+
+/**
+ * 
+ * @param {String} name 
+ * @returns Object => DOM Element
+ */
+function makeHtmlEl(name) {
+    return document.createElement(name);
+}
+
+/**
+ * 
+ * @param {Object} el 
+ * @returns Object => DOM Element
+ */
+function copy(el) {
+    return el.cloneNode(true);
+}
+
+/**
+ * 
+ * @param {Object} el 
+ * @param {String} inner 
+ * @returns Object => DOM Element
+ */
+function innerHtml(el, inner) {
+    try {
+        let cp = copy(el);
+        cp.innerHTML = inner;
+        return cp;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+/**
+ * 
+ * @param {Object} parent 
+ * @param {Object} child 
+ * @returns Object => DOM Element
+ */
+function append(parent, child) {
+    try {
+        let parentcopy = copy(parent);
+        let childcopy = copy(child);
+        parentcopy.appendChild(childcopy);
+        return parentcopy;
+    } catch (e) {
+        console.log(e);
+    }
+    
+}
+
+function generateCalBody(calobject) {
+    let tbody = makeHtmlEl("tbody");
+    let dayofthemonth = 1;
+    let totaldays = Object.keys(calobject).length;
+    // create 5 table rows, for the five weeks of the month (at most)
+    for (let i = 0; i < 5; i++) {
+        let trow = makeHtmlEl("tr");
+        for (let j = 0; j < 7; j++) {
+            let td = makeHtmlEl("td");
+            if(calobject.hasOwnProperty(dayofthemonth) && calobject[dayofthemonth].dayofweek === j && dayofthemonth <= totaldays) {
+                td = innerHtml(td, dayofthemonth);
+                dayofthemonth++;
+            } else {
+                td = innerHtml(td, "-");
+            }
+            trow = append(trow, td);
+        }
+        tbody = append(tbody, trow);
+    }
+    return tbody;
+}
+
+function renderCal(y, m) {
+    let date = new Date(y, m);
+    let month = new Intl.DateTimeFormat('en-US', {month: 'long', year: 'numeric'}).format(date);
+    let monthcal = getDaysOfMonth(date);
+    let s = document.getElementById("month");
+    let newtd = makeHtmlEl("td");
+    newtd = innerHtml(newtd, month);
+    newtd.style.textAlign = 'center';
+    newtd.setAttribute("colspan", "7");
+    s.replaceWith(newtd);
+    let tbody = generateCalBody(monthcal);
+    let t = document.getElementById("tablebody");
+    t.replaceWith(tbody);
 }
 
 
     try {
-   
+        renderCal(2020, 8);
+        
     } catch (e) {
         console.error(e);
     }
