@@ -1,4 +1,6 @@
-
+import { test } from "./utils";
+import './style.css';
+console.log(test);
 /*
 Generate a calendar view for a specific month
     Get the month
