@@ -1,31 +1,5 @@
-import { test } from "./utils";
+import  {append, innerHtml, makeHtmlEl}  from "./utils";
 import './style.css';
-console.log(test);
-/*
-Generate a calendar view for a specific month
-    Get the month
-    Get the days as number from min 1 to max 31
-        Check how many days
-        Store the days in an object {fulldate: , date: dayofweek}
-    Place the days in the right table cells
-        Generate a row
-        Generate cells
-            If cell has no day of the corresponding month, leave empty or put underscore
-            Else append num of the day
-        Append cells to row
-        Append row to table
-        repeat until no days left
-
-
-howManyDays(Date date)
-    is date is Date type
-        if not return "Invalid date format!"    
-    get month from date
-    substract next month from entered month (you get milliseconds)
-        get next month
-            get year + month from date and create new date
-    translate to days and return
-*/
 
 const MILL_TO_DAYS_COEF = 1000*60*60*24;
 
@@ -79,57 +53,7 @@ function getDaysOfMonth(date) {
     return monthcalendar;
 }
 
-/**
- * 
- * @param {String} name 
- * @returns Object => DOM Element
- */
-function makeHtmlEl(name) {
-    return document.createElement(name);
-}
 
-/**
- * 
- * @param {Object} el 
- * @returns Object => DOM Element
- */
-function copy(el) {
-    return el.cloneNode(true);
-}
-
-/**
- * 
- * @param {Object} el 
- * @param {String} inner 
- * @returns Object => DOM Element
- */
-function innerHtml(el, inner) {
-    try {
-        let cp = copy(el);
-        cp.innerHTML = inner;
-        return cp;
-    } catch (e) {
-        console.log(e);
-    }
-}
-
-/**
- * 
- * @param {Object} parent 
- * @param {Object} child 
- * @returns Object => DOM Element
- */
-function append(parent, child) {
-    try {
-        let parentcopy = copy(parent);
-        let childcopy = copy(child);
-        parentcopy.appendChild(childcopy);
-        return parentcopy;
-    } catch (e) {
-        console.log(e);
-    }
-    
-}
 
 function howManyRows(numofdays, firstdayofmonth) {
     let numofrows = 5;
