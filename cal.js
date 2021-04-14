@@ -51,7 +51,7 @@ function howManyDays(date) {
     let month = date.getMonth();
     let nextMonth = new Date(date.getFullYear(), month + 1);
     try {
-        let numofdays = Math.ceil(milliToDays(nextMonth - date));
+        let numofdays = Number(milliToDays(nextMonth - date).toFixed(0));
         return numofdays;
     } catch (e) {
         console.log(e);
@@ -66,9 +66,11 @@ function howManyDays(date) {
  */
 function getDaysOfMonth(date) {
     let daysinmonth = howManyDays(date);
+    console.log(daysinmonth);
     let monthcalendar = {};
     for (let i = 0; i < daysinmonth; i++) {
-        monthcalendar[date.getDate()] = {dayofweek: (date.getDay() === 0 ? 6 : date.getDay() -1 ), fulldate: new Intl.DateTimeFormat('en-US', {weekday: 'long'}).format(date)}
+        let day = (date.getDay() === 0 ? 6 : date.getDay() - 1);
+        monthcalendar[date.getDate()] = {dayofweek: day}
         date.setDate(date.getDate()+1);
     }
     console.log(monthcalendar);
@@ -127,12 +129,22 @@ function append(parent, child) {
     
 }
 
+function howManyRows(numofdays, firstdayofmonth) {
+    let numofrows = 5;
+    if (numofdays === 28 && firstdayofmonth === 0) numofrows = 4;
+    if ((numofdays === 31) && firstdayofmonth === 5) numofrows = 6;
+    if ((numofdays === 30 || numofdays === 31) && firstdayofmonth === 6) numofrows = 6;
+    console.log(numofrows);
+    return numofrows;
+}
+
 function generateCalBody(calobject) {
     let tbody = makeHtmlEl("tbody");
     let dayofthemonth = 1;
     let totaldays = Object.keys(calobject).length;
+    let rows = howManyRows(totaldays, calobject["1"].dayofweek)
     // create 5 table rows, for the five weeks of the month (at most)
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < rows; i++) {
         let trow = makeHtmlEl("tr");
         for (let j = 0; j < 7; j++) {
             let td = makeHtmlEl("td");
@@ -158,16 +170,48 @@ function renderCal(y, m) {
     newtd = innerHtml(newtd, month);
     newtd.style.textAlign = 'center';
     newtd.setAttribute("colspan", "7");
+    newtd.setAttribute("id", "month");
     s.replaceWith(newtd);
     let tbody = generateCalBody(monthcal);
+    tbody.setAttribute("id", "tablebody");
     let t = document.getElementById("tablebody");
     t.replaceWith(tbody);
 }
 
+function changemonth(dir, year, month) {
+    if (dir === "next") {
+        if (month === 11) {
+            month = 0, year++;
+        } else {
+            month++;
+        }
+    } else {
+        if (month === 0) {
+            month = 11, year--;
+        } else {
+            month--;
+        }
+    }
+    return [year, month];
+}
+
 
     try {
-        renderCal(2020, 8);
-        
+        let date = [2020, 8];
+        renderCal(date[0], date[1]);
+        let prev = document.getElementById("prev");
+        let next = document.getElementById("next");
+        prev.addEventListener('click', (e) => {
+            let newdate = changemonth("prev", date[0], date[1]);
+            date = newdate;
+            renderCal(date[0], date[1]);
+        })
+
+        next.addEventListener('click', (e) => {
+            let newdate = changemonth("next", date[0], date[1]);
+            date = newdate;
+            renderCal(date[0], date[1]);
+        }) 
     } catch (e) {
         console.error(e);
     }
